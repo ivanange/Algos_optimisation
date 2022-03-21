@@ -1,0 +1,291 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This file is a template using the "beamer" package to create slides for a talk or presentation
+% - Talk at a conference/colloquium.
+% - Talk length is about 20min.
+% - Style is ornate.
+
+% MODIFIED by Jonathan Kew, 2008-07-06
+% The header comments and encoding in this file were modified for inclusion with TeXworks.
+% The content is otherwise unchanged from the original distributed with the beamer package.
+
+\documentclass{beamer}
+
+
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  % or ...
+
+  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+
+
+\usepackage[english]{babel}
+% or whatever
+
+\usepackage[utf8]{inputenc}
+% or whatever
+
+\usepackage{times}
+\usepackage[T1]{fontenc}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\lstset{
+	basicstyle=\ttfamily,
+	mathescape
+}
+\usepackage{array}
+\usepackage{verbatim}
+%\setbeamertemplate{footline}[frame number]
+\addtobeamertemplate{navigation symbols}{}{%
+	\usebeamerfont{footline}%
+	\usebeamercolor[fg]{footline}%
+	\hspace{1em}%
+	\insertframenumber/\inserttotalframenumber
+}
+\title[Introduction à la méthode de Descente du Gradient]
+{Introduction à la méthode de Descente du Gradient}
+
+
+%\author[Bouh Ivan] % (optional, use only with lots of authors)
+%{Bouh Ivan}
+% - Give the names in the same order as the appear in the paper.
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+\institute[Universities of Yaoundé 1 - Department of Computer Science] % (optional, but mostly needed)
+
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+
+\begin{document}
+	
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+\tableofcontents
+% You might wish to add the option [pausesections]
+\end{frame}
+
+
+\section{Introduction}
+
+\begin{frame}{Introduction}{}
+
+	En effet une formulation mathématique d’un problème d’apprentissage	automatique nous renvoi à un problème d’optimisation avec ou sans contrainte. 
+	\begin{itemize}
+		\item Satisfaisante pour résoudre ce type de problème notamment pour les réseaux de neurones.
+		\item Très populaire surtout dans les bibliothèques d'apprentissage profond.
+		\item Mérite une attention particulière sur lui et ses variantes.
+		\item La fonction objective $f : R^d \rightarrow R$ doit etre continue et totalement différentiable.
+	\end{itemize}	
+	
+\end{frame}
+
+\begin{frame}{Formulation}{}
+
+Soit $f : R^d \rightarrow R$ une fonction continue et totalement différentiable et $\theta^{0}$ la valeur initiale du paramètre $\theta$ de $f$. La descente du gradient procède itérativement comme suit (cas de minimisation):
+
+	\begin{itemize}
+		\item Calcule $\nabla_{\theta}{f}$.
+		\item Met à jour ${\theta}$:
+			\begin{equation}
+			\theta^{t+1}=\theta^{t}-\eta \frac{\partial{f(\theta^{t})}}{\partial{\theta^{t}}}
+			\end{equation}
+			où $\eta$ est le taux d'apprentissage.
+		\item L’on répète les étapes précédente jusqu’à la convergence: $\theta^{*}$ tel que 
+			\begin{equation}
+			\frac{\partial{f(\theta^{*})}}{\partial{\theta^{*}}} = 0
+			\end{equation}
+		
+	\end{itemize}
+
+\end{frame}
+
+
+\section{Formulation}
+
+\begin{frame}{Formulation}{}
+
+\begin{itemize}
+	\item Pour la maximisation on peut calculer l'inverse.
+	\item Le $f(\theta^{*})$ de convergence est un minimum(maximum) global si la fonction est convexe sinon il est peut etre local.
+	
+\end{itemize}
+
+\end{frame}
+
+\section{Variantes}
+
+\begin{frame}{Variantes}
+
+On distingue 3 vairantes de la descente du gradient:
+
+\begin{itemize}
+	\item \textbf{Batch Gradient Descent}.
+	\item \textbf{Stochastic Gradient Descent}.
+	\item \textbf{Mini-Bacht Gradient Descent}.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Variantes}{Batch Gradient Descent}
+
+	\textbf{Batch Gradient Descent}
+	\begin{itemize}
+		\item la version standard de l’algorithme.
+		\item l'erreur (gradient) est cumulé
+			\begin{equation}
+			\theta = \theta - \eta \nabla_{\theta}f(\theta)
+			\end{equation}
+		\item est assez lente.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Variantes}{Bacht Gradient Descent}
+
+\begin{center}
+	\begin{algorithm}[H]
+		\caption{BGD($ D = \lbrace (x_{1},y_{1})...(x_{n},y_{n}) \rbrace, n\_epoch, \eta$)}
+		\begin{algorithmic} 
+			\STATE Initialiser $\theta^{0}$
+			\STATE $E_{0} = 0$
+			\FOR{$i=1$ \TO $n\_epoch$ } 
+			\FORALL{$(x_{d},y_{d})$ in D } 
+			\STATE $y_{pred} = get\_prediction(\theta^{i}, x_{d})$
+			\STATE $E_{t} = E_{t-1} + get\_error(y_{pred}, y_{d})$
+			\ENDFOR
+			\STATE caluler $\nabla E(\theta )$
+			\STATE $\theta^{i} = \theta^{i-1} - \eta\nabla E(\theta ) $
+			\ENDFOR
+			\RETURN $\theta^{i}$
+		\end{algorithmic}
+	\end{algorithm}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Variantes}{Stochastic Gradient Descent}
+
+	\textbf{Stochastic Gradient Descent}
+	\begin{itemize}
+		\item on calcule le gradient et met à jour $\theta$  pour chaque instance du jeu de données
+		\begin{equation}
+		\theta = \theta - \eta \nabla_{\theta}f(\theta, x_{i}, y_{i})
+		\end{equation}
+		\item plus rapide mais assez instable surtout proche du minimum(maximum).
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Variantes}{Stochastic Gradient Descent}
+
+\begin{center}
+\begin{algorithm}[H]
+	\caption{BGD($ D = \lbrace (x_{1},y_{1})...(x_{n},y_{n}) \rbrace, n\_epoch, \eta$)}
+	\begin{algorithmic} 
+		\STATE Initialiser $\theta^{0}$
+		\STATE $E_{0} = 0$
+		\FOR{$i=1$ \TO $n\_epoch$ } 
+		\STATE shuffle(D)
+		\FORALL{$(x_{d},y_{d})$ in D } 
+		\STATE $y_{pred} = get\_prediction(\theta^{i}, x_{d})$
+		\STATE $E_{t} = E_{t-1} + get\_error(y_{pred}, y_{d})$
+		\STATE caluler $\nabla E(\theta )$
+		\STATE $\theta^{i} = \theta^{i-1} - \eta\nabla E(\theta ) $
+		\ENDFOR
+		\ENDFOR
+		\RETURN $\theta^{i}$
+	\end{algorithmic}
+\end{algorithm}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Variantes}{Mini-Bacht Gradient Descent}
+
+	\textbf{Mini-Bacht Gradient Descent}
+	\begin{itemize}
+		\item la mise à jour ce fait après chaque lot de taille fixé, le gradient est cumulé tout au long du lot.
+		\begin{equation}
+		\theta = \theta - \eta \nabla_{\theta}f(\theta, x_{i:i+n}, y_{i:i+n})
+		\end{equation}
+		\item A les advantages de la vitesse de la version stochastic et la stabilité de la version batch.
+		\item Difficulté a trouvé la bonne taille pour le lot.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Variantes}{Mini-Bacht Gradient Descent}
+
+\begin{center}
+\begin{algorithm}[H]
+	\caption{mini\_bacht($ D = \lbrace (x_{1},y_{1})...(x_{n},y_{n}) \rbrace, n\_epoch, \eta, bacht\_size$)}
+	\begin{algorithmic} 
+		\STATE Initialiser $\theta^{0}$
+		\STATE $E_{0} = 0$
+		\FOR{$i=1$ \TO $n\_epoch$ } 
+		\STATE shuffle(D)
+		\FOR{bacht \textbf{in} get\_bacht(D, bacht\_size)} 
+		\FORALL{$(x_{d},y_{d})$ in bacht } 
+		\STATE $y_{pred} = get\_prediction(\theta^{i}, x_{d})$
+		\STATE $E_{t} = E_{t-1} + get\_error(y_{pred}, y_{d})$
+		\STATE caluler $\nabla E(\theta )$
+		\STATE $\theta^{i} = \theta^{i-1} - \eta\nabla E(\theta ) $
+		\ENDFOR
+		\ENDFOR
+		\ENDFOR
+		\RETURN $\theta^{i}$
+	\end{algorithmic}
+\end{algorithm}
+\end{center}
+
+\end{frame}
+
+\end{document}
+
+
+
