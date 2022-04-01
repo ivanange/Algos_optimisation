@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include "utils.h"
 
 
@@ -68,7 +69,7 @@ int main()
       cost=MSE(y_pred, bacht_y[i], (double)BACHT_SIZE);
       grad_descent(y_pred, bacht_y[i], bacht_x[i], theta, (double)BACHT_SIZE);
       conteur = conteur  + 1 ;
-      //break;
+      break;
       }
       error[epoch] = cost;
       printf("\nEpoch: %d Theta0: %lf Theta1: %lf Cost: %lf \n",epoch,theta[0],theta[1],cost);
@@ -82,7 +83,6 @@ int main()
 
 
 
-printf("---------------\n%d\n---------", conteur);
     plot_error_iter(error);
 
 

@@ -5,7 +5,7 @@
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 #define DATA_SIZE 100
-#define BACHT_SIZE 1
+#define BACHT_SIZE 60
 #define EPOCHS 450
 #define LEARNING_RATE 0.005
 #define NUM_COMMANDS 2
