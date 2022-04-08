@@ -4,8 +4,9 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-#define DATA_SIZE 100
-#define BACHT_SIZE 5
+#define MACHINE 2
+#define DATA_SIZE 1000
+#define BACHT_SIZE 50
 #define EPOCHS 450
 #define LEARNING_RATE 0.005
 #define NUM_COMMANDS 2
@@ -28,6 +29,8 @@ double ***bacht_data(double *y, double *x , int bacht_size, int n ) ;
 void plot_error_iter(double *e) ;
 
 void randomize(int *array, int n) ;
+
+void initialize_vect_zero(double *a, int n);
 
 float f( float x ) ;
 
