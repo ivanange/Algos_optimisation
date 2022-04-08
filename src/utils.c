@@ -176,7 +176,14 @@ void plot_error_iter(double *e)
 	}
 }
 
-
+void initialize_vect_zero(double *a, int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		a[i] = 0 ;
+	}
+	
+}
 
 double **allocate_dynamic_float_matrix(int row, int col)
 {

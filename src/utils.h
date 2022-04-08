@@ -33,6 +33,9 @@ float f( float x ) ;
 
 float d_f(float x) ;
 
+void initialize_vect_zero(double *a, int n);
+
+
 
 
 

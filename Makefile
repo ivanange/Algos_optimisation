@@ -12,7 +12,7 @@ HEADERS_SMO= $(SRC)/sample.h $(SRC)/svm.h
 all : gradient_descent smo
 
 $(OBJ)/utils.o: $(SRC)/utils.c $(HEADERS)
-	$(CC) $(CFLAGS) $(SRC)/utils.c  -o $(OBJ)/utils. -lm
+	$(CC) $(CFLAGS) $(SRC)/utils.c  -o $(OBJ)/utils.o -lm
 
 $(OBJ)/gradient_descent.o: $(SRC)/gradient_descent.c $(HEADERS_GRADIENT)
 	$(CC) $(CFLAGS) $(SRC)/gradient_descent.c  -o $(OBJ)/gradient_descent.o -lm
@@ -44,4 +44,4 @@ run-smo: smo
 	./$(BIN)/smo.exe
 
 run-gradient_descent: gradient_descent
-	./$(BIN)/gradient_descent.exe
+	./$(BIN)/gradient_descent.exe $(size) $(seq)  
