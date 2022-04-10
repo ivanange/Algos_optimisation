@@ -183,7 +183,7 @@ void *parallelGd(void *threadmess){
     int epoch = 0;
     int r ;
     int bacht_size = DATA_SIZE / NUM_THREADS;
-    while(epoch < EPOCHS){
+    while(epoch < EPOCHS) {
 
       double *y_pred = prediction(mes_param->x, mes_param->theta, bacht_size);
       grad_descent(y_pred, mes_param->y, mes_param->x, mes_param->theta, (double)bacht_size);     

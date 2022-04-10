@@ -26,11 +26,29 @@ $(OBJ)/sample.o: $(SRC)/sample.c $(HEADERS_SMO)
 $(OBJ)/smo.o: $(SRC)/smo.c $(HEADERS_SMO)
 	$(CC) $(CFLAGS) $(SRC)/smo.c -o $(OBJ)/smo.o -lm
 
+$(OBJ)/benchmark-smo.o: $(SRC)/benchmark-smo.c $(HEADERS_SMO)
+	$(CC) $(CFLAGS) $(SRC)/benchmark-smo.c -o $(OBJ)/benchmark-smo.o -lm
+
 gradient_descent: ${OBJECTS_GRADIENT} $(OBJ)/gradient_descent.o $(HEADERS)
 	$(CC) -o $(BIN)/gradient_descent.exe ${OBJECTS_GRADIENT} $(OBJ)/gradient_descent.o -lm -lpthread
 
 smo: ${OBJECTS_SMO} $(OBJ)/smo.o $(HEADERS_SMO)
 	$(CC) -o $(BIN)/smo.exe ${OBJECTS_SMO} $(OBJ)/smo.o -lm -lpthread
+
+run-smo: smo
+	./$(BIN)/smo.exe
+
+benchmark-smo: ${OBJECTS_SMO} $(OBJ)/benchmark-smo.o $(HEADERS_SMO)
+	$(CC) -o $(BIN)/benchmark-smo.exe ${OBJECTS_SMO} $(OBJ)/benchmark-smo.o -lm -lpthread
+
+smo.dat: benchmark-smo
+	./$(BIN)/benchmark-smo.exe
+
+run-gradient_descent: gradient_descent
+	./$(BIN)/gradient_descent.exe $(size) $(seq) 
+
+plot-smo: smo.dat
+	gnuplot -e "input_file='smo.dat'; output_file='plots/smo-times.ps'" gnuplot_smo
 
 clean: 
 	rm -rf $(OBJ)/*.o
@@ -39,9 +57,3 @@ clean:
 empty: 
 	del /F /Q $(OBJ)\*.o
 	del /F /Q $(BIN)\*.exe
-
-run-smo: smo
-	./$(BIN)/smo.exe
-
-run-gradient_descent: gradient_descent
-	./$(BIN)/gradient_descent.exe $(size) $(seq)  
