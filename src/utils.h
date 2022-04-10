@@ -4,7 +4,7 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-#define DATA_SIZE 100
+#define DATA_SIZE 10000
 #define BACHT_SIZE 5
 #define EPOCHS 450
 #define LEARNING_RATE 0.005
