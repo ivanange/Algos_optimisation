@@ -3,7 +3,7 @@
 #include <time.h>
 #include "utils.h"
 #include <pthread.h>
-#define NUM_THREADS 10
+#define NUM_THREADS 1
 
 void sequentiel();
 int load_data();
