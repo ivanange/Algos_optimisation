@@ -12,16 +12,21 @@ int parallel();
 
 struct thread_param {
 int k ;
-double *x ;
-double *y ;
+double **x ;
+double **y ;
 double *theta;
+double *x2;
+double *y2;
+double *b;
+int nb;
 };
-struct thread_param t_thread_param [ NUM_THREADS ];
+struct thread_param t_thread_param [NUM_THREADS];
 pthread_mutex_t mutex_theta ;
 double tf[]={0.0,0.0};
 
 int bacht_size = 1, seq = 1;
 double x[DATA_SIZE], y[DATA_SIZE];
+int t = DATA_SIZE / NUM_THREADS;
 double theta[]={0.0,0.0};
 int total_samples = DATA_SIZE;
 double* y_pred ;
@@ -103,31 +108,34 @@ void sequentiel(){
 
 int parallel()
 {
+	srand(time(NULL));
+
 
   	pthread_t threads[NUM_THREADS];
 	pthread_attr_t attr;
 	int rc;
-   
-	int bacht_size = DATA_SIZE / NUM_THREADS;
-	double ***bacht_datas = bacht_data(y, x , bacht_size, DATA_SIZE);
-	double **bacht_y = bacht_datas[0];
-	double **bacht_x = bacht_datas[1];
-	int num_bacht = DATA_SIZE / BACHT_SIZE;
-	void *status;
-	/* Initialize and set thread detached attribute */
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  
+    // t = m/k
+    int t = DATA_SIZE / NUM_THREADS;
+    double ***bacht_datas = bacht_data(y, x , t, DATA_SIZE);
+    double **bacht_y = bacht_datas[0];
+    double **bacht_x = bacht_datas[1];
+    void *status;
+    /* Initialize and set thread detached attribute */
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	clock_t begin = clock();
 	for(int i=0; i<NUM_THREADS ; i++) {
-		t_thread_param[i].x = bacht_x[i] ;
-		t_thread_param[i].y = bacht_y[i] ;
-		t_thread_param[i].k = NUM_THREADS;
-		t_thread_param[i].theta = theta;
-		initialize_vect_zero(theta, 2);
-		num_bacht = num_bacht - 1 ;
+		//double ***b = bacht_data(bacht_y[i], bacht_x[i] , 1, t);
+		t_thread_param[i].x2 =  bacht_x[i] ;
+		t_thread_param[i].y2 = bacht_y[i] ;
+		//t_thread_param[i]. = i;
+		//t_thread_param[i].k = NUM_THREADS ;
+		t_thread_param[i].theta = (double *)malloc(sizeof(double)*2);
+		initialize_vect_zero(t_thread_param[i].theta, 2);
 		//printf("Main: creating thread %d\n", i);
-		rc  = pthread_create(&threads[i] , &attr, parallelGd , (void*) & t_thread_param[i]) ;
+		rc  = pthread_create(&threads[i] , &attr, parallelGd , (void*) &t_thread_param[i]) ;
 		if (rc) {
 		printf("ERROR; return code from pthread_create() is %d\n", rc);
 		exit(-1);
@@ -147,14 +155,60 @@ int parallel()
 
 	}
 
-	printf("\n\n\n \t *****************Results after %d iterations (version parallel) ********************",EPOCHS);
-    printf("\n\n \tTheta0 (m) : %lf    Theta1 (b) :  %lf  \n",tf[0], tf[1]);
+  for (int p = 0; p < NUM_THREADS; p++)
+  {
+    tf[0] = tf[0] + t_thread_param[p].theta[0]/NUM_THREADS;
+    tf[1] = tf[1] + t_thread_param[p].theta[1]/NUM_THREADS;
+
+  }
+  
+
+  printf("\n\n\n \t *****************Results after %d iterations (version parallel) ********************",EPOCHS);
+  printf("\n\n \tTheta0 (m) : %lf    Theta1 (b) :  %lf  \n",tf[0], tf[1]);
 
   	clock_t end = clock();
   	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
   	printf("\n\t----------terminer avec un temps t = %lf s--------------\n", time_spent);
 	pthread_exit(NULL);
 }
+
+
+void *parallelGd(void *threadmess){
+
+    struct thread_param *mes_param ;
+    mes_param = ( struct thread_param *) threadmess ;
+    int r ;
+	int t = DATA_SIZE / NUM_THREADS;
+    
+      
+    for (int i = 0; i < EPOCHS; i++)
+    {
+    	y_pred = prediction(mes_param->x2, mes_param->theta, t);
+        grad_descent(y_pred, mes_param->y2, mes_param->x2, mes_param->theta, (double)t);
+    }
+      
+  
+    
+    //r = pthread_mutex_lock(&mutex_theta);
+    //if (r!=0) { perror ("ERREUR pthread_mutex_lock()") ; exit (EXIT_FAILURE);}
+    // Début de la section critique
+
+    //mes_param->theta[0] =  mes_param->theta[0] / NUM_THREADS;
+    //mes_param->theta[1] =  mes_param->theta[1] / NUM_THREADS;
+
+
+
+    //r = pthread_mutex_unlock (&mutex_theta);
+    //if (r!=0) { perror ("ERREUR pthread_mutex_ unlock()") ; exit ( EXIT_FAILURE ) ;} 
+    pthread_exit ( NULL ) ;
+}
+
+
+
+
+
+
+
 
 int load_data()
 {
@@ -176,29 +230,5 @@ int load_data()
 }
 
 
-void *parallelGd(void *threadmess){
-
-    struct thread_param * mes_param ;
-    mes_param = ( struct thread_param *) threadmess ;
-    int epoch = 0;
-    int r ;
-    int bacht_size = DATA_SIZE / NUM_THREADS;
-    while(epoch < EPOCHS){
-
-      double *y_pred = prediction(mes_param->x, mes_param->theta, bacht_size);
-      grad_descent(y_pred, mes_param->y, mes_param->x, mes_param->theta, (double)bacht_size);     
-      epoch++;
-
-    }
-
-    r = pthread_mutex_lock(&mutex_theta);
-    if (r!=0) { perror ("ERREUR pthread_mutex_lock()") ; exit (EXIT_FAILURE);}
-    // Début de la section critique
-    tf[0] = tf[0] + mes_param->theta[0] / mes_param->k;
-    tf[1] = tf[1] + mes_param->theta[1] / mes_param->k;
-    r = pthread_mutex_unlock (&mutex_theta);
-    if (r!=0) { perror ("ERREUR pthread_mutex_ unlock()") ; exit ( EXIT_FAILURE ) ;} 
-    pthread_exit ( NULL ) ;
-}
 
 
