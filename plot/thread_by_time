@@ -1,0 +1,7 @@
+#set term postscript color noenhanced
+set term pdf color noenhanced
+set output output_file
+set grid
+set output "output/thrad_by_time.pdf"
+set title 'thread by time'
+plot 'data2.temp' w l title 'Thread by time'

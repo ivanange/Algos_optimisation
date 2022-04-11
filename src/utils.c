@@ -159,7 +159,7 @@ void randomize(int *array, int n) {
 }
 
 
-void plot_error_iter(double *e)
+void plot_error_iter(double *e, int b)
 {
 	char * commandsForGnuplot[] = {"set title \"TITLE\"", "plot 'data.temp' w l"};
 	FILE * temp = fopen("data.temp", "w");
@@ -169,6 +169,17 @@ void plot_error_iter(double *e)
 	{
 		fprintf(temp, "%lf %lf \n", (double)i , e[i]); //Write the data to a temporary file
 	}
+	
+	for (int i=0; i < NUM_COMMANDS; i++)
+	{
+		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
+	}
+}
+
+void plot_threads_time()
+{
+	char * commandsForGnuplot[] = {"set title \"TITLE\"", "plot 'data2.temp' w l"};
+	FILE * gnuplotPipe = popen ("gnuplot -persistent", "w");
 
 	for (int i=0; i < NUM_COMMANDS; i++)
 	{

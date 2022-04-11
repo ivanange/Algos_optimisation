@@ -1,0 +1,1 @@
+gnuplot -e "input_file='data3.temp'; output_file='output/time.ps'" size_by_time_plot

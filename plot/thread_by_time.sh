@@ -1,0 +1,1 @@
+gnuplot -e "input_file='data2.temp'; output_file='output/time.ps'" thread_by_time

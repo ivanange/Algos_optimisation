@@ -25,7 +25,7 @@ void deallocate_dynamic_float_matrix(float **matrix, int row);
 
 double ***bacht_data(double *y, double *x , int bacht_size, int n ) ;
 
-void plot_error_iter(double *e) ;
+void plot_error_iter(double *e, int b) ;
 
 void randomize(int *array, int n) ;
 
@@ -35,6 +35,7 @@ float d_f(float x) ;
 
 void initialize_vect_zero(double *a, int n);
 
+void plot_threads_time();
 
 
 

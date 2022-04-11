@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "utils.h"
 #include <pthread.h>
-#define NUM_THREADS 1
+#define NUM_THREADS 2
 
 void sequentiel();
 int load_data();
 void *parallelGd(void *threadmess);
 int parallel();
+int bacht_size = 1, seq = 1, nthreads = 2, data = 0;
 
 struct thread_param {
 int k ;
@@ -20,11 +22,9 @@ double *y2;
 double *b;
 int nb;
 };
-struct thread_param t_thread_param [NUM_THREADS];
 pthread_mutex_t mutex_theta ;
 double tf[]={0.0,0.0};
 
-int bacht_size = 1, seq = 1;
 double x[DATA_SIZE], y[DATA_SIZE];
 int t = DATA_SIZE / NUM_THREADS;
 double theta[]={0.0,0.0};
@@ -50,12 +50,14 @@ int main(int argc, char *argv[])
   
   	bacht_size =  atoi(argv[1]);
   	seq = atoi(argv[2]);
+	nthreads = atoi(argv[3]);
+	data = atoi(argv[4]);
 
   	if (seq == 1)
   	{
     	sequentiel();
   	}
-  	else parallel(); 
+  	else parallel(NUM_THREADS); 
 
 	return 0 ;
 
@@ -90,17 +92,32 @@ void sequentiel(){
       		break;
       	}
       	error[epoch] = cost;
-      	printf("\nEpoch: %d Theta0: %lf Theta1: %lf Cost: %lf \n",epoch,theta[0],theta[1],cost);
+		
+		
+		
+		
+      	//printf("\nEpoch: %d Theta0: %lf Theta1: %lf Cost: %lf \n",epoch,theta[0],theta[1],cost);
       	epoch++;
     }
+
+	clock_t end = clock();
+  	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+	if (data != 0)
+	{
+		FILE * temp = fopen("plot/data3.temp", "a");
+		fprintf(temp, "%d %lf \n", bacht_size, time_spent ); //Write the data to a temporary file
+
+	}
+	
+
     printf("\n\n\n \t *****************Results after %d iterations********************",epoch);
     printf("\n\n \tTheta0 (m) : %lf    Theta1 (b) :  %lf    MSE :  %lf \n",theta[0], theta[1] ,cost);
 
-  	clock_t end = clock();
-  	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+  	
   	printf("\n\t----------terminer avec un temps t = %lf s--------------\n", time_spent);
 
-    plot_error_iter(error);
+    plot_error_iter(error, bacht_size);
 
 }
 
@@ -108,15 +125,17 @@ void sequentiel(){
 
 int parallel()
 {
-	srand(time(NULL));
+	//srand(time(NULL));
+	
+	struct thread_param *t_thread_param = ( struct thread_param *)malloc(sizeof(struct thread_param)*nthreads);
 
-
-  	pthread_t threads[NUM_THREADS];
+  	pthread_t *threads = ( pthread_t *) malloc(sizeof(pthread_t)*nthreads);
 	pthread_attr_t attr;
 	int rc;
-  
+	printf("\n\n %d \n\n", nthreads);
+	
     // t = m/k
-    int t = DATA_SIZE / NUM_THREADS;
+    int t = DATA_SIZE / nthreads;
     double ***bacht_datas = bacht_data(y, x , t, DATA_SIZE);
     double **bacht_y = bacht_datas[0];
     double **bacht_x = bacht_datas[1];
@@ -126,7 +145,7 @@ int parallel()
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	clock_t begin = clock();
-	for(int i=0; i<NUM_THREADS ; i++) {
+	for(int i=0; i<nthreads ; i++) {
 		//double ***b = bacht_data(bacht_y[i], bacht_x[i] , 1, t);
 		t_thread_param[i].x2 =  bacht_x[i] ;
 		t_thread_param[i].y2 = bacht_y[i] ;
@@ -144,7 +163,7 @@ int parallel()
 	}
 	/* Free attribute and wait for the other threads */
 	pthread_attr_destroy(&attr);
-	for(int i=0; i< NUM_THREADS; i++) {
+	for(int i=0; i< nthreads; i++) {
 
 		rc = pthread_join(threads[i], &status);
 		if (rc) {
@@ -155,19 +174,30 @@ int parallel()
 
 	}
 
-  for (int p = 0; p < NUM_THREADS; p++)
+  for (int p = 0; p < nthreads; p++)
   {
-    tf[0] = tf[0] + t_thread_param[p].theta[0]/NUM_THREADS;
-    tf[1] = tf[1] + t_thread_param[p].theta[1]/NUM_THREADS;
+    tf[0] = tf[0] + t_thread_param[p].theta[0]/nthreads;
+    tf[1] = tf[1] + t_thread_param[p].theta[1]/nthreads;
 
   }
+  clock_t end = clock();
+double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
   
+	
+	if (data != 1)
+	{
+		FILE * temp = fopen("plot/data4.temp", "a");
+		fprintf(temp, "%d %lf \n", nthreads, time_spent ); //Write the data to a temporary file
+
+	}
+	
+	
+
 
   printf("\n\n\n \t *****************Results after %d iterations (version parallel) ********************",EPOCHS);
   printf("\n\n \tTheta0 (m) : %lf    Theta1 (b) :  %lf  \n",tf[0], tf[1]);
 
-  	clock_t end = clock();
-  	double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+  	
   	printf("\n\t----------terminer avec un temps t = %lf s--------------\n", time_spent);
 	pthread_exit(NULL);
 }
@@ -178,7 +208,7 @@ void *parallelGd(void *threadmess){
     struct thread_param *mes_param ;
     mes_param = ( struct thread_param *) threadmess ;
     int r ;
-	int t = DATA_SIZE / NUM_THREADS;
+	int t = DATA_SIZE / nthreads;
     
       
     for (int i = 0; i < EPOCHS; i++)
