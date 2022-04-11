@@ -44,4 +44,4 @@ run-smo: smo
 	./$(BIN)/smo.exe
 
 run-gradient_descent: gradient_descent
-	./$(BIN)/gradient_descent.exe $(size) $(seq) $(thread) $(plot) 
+	./$(BIN)/gradient_descent.exe $(size) $(seq) $(thread) $(data)

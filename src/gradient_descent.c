@@ -193,7 +193,6 @@ double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	
 	
 
-
   printf("\n\n\n \t *****************Results after %d iterations (version parallel) ********************",EPOCHS);
   printf("\n\n \tTheta0 (m) : %lf    Theta1 (b) :  %lf  \n",tf[0], tf[1]);
 
