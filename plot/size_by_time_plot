@@ -4,6 +4,8 @@ set output output_file
 set grid
 set output "output/time_comparison_kmeans.pdf"
 set style fill solid
+set ylabel 'time (s)'
+set xlabel 'bacht size'
 set style data histograms
 set title 'time by bachts size'
 plot './data3.temp' using 2:xtic(1) title 'time by bachts size'
